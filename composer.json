@@ -2,7 +2,7 @@
     "name": "dpiquet/mapping",
     "description": "array keys mapping class",
     "type": "library",
-    "license": "GPLv3",
+    "license": "GPL-3.0-or-later",
     "authors": [
         {
             "name": "Damien PIQUET",

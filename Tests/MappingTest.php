@@ -90,4 +90,14 @@ class MappingTest extends TestCase {
         $this->assertTrue(is_array($maps));
     }
 
+    /**
+     * @expectedException Dpiquet\Mapping\Exception\OverlapColumnException
+     */
+    public function testOverlapColumnException()
+    {
+        $mapping = new Mapping();
+        $mapping->addMapping('test', ['a','b','c']);
+        $mapping->map(['a', 'a']);
+    }
+
 }

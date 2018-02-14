@@ -4,6 +4,7 @@ namespace Dpiquet\Mapping;
 
 use Dpiquet\Mapping\Exception\MappingOverlapException;
 use Dpiquet\Mapping\Exception\MappingIncompleteException;
+use Dpiquet\Mapping\Exception\OverlapColumnException;
 
 /**
  * Informations de mapping pour les fichiers d'import
@@ -31,7 +32,8 @@ class Mapping {
      * @return $this
      * @throws MappingOverlapException
      */
-    public function addMapping($key, array $accepted_names, $required = true) {
+    public function addMapping($key, array $accepted_names, $required = true)
+    {
         $lower_accepted_names = [];
 
         foreach($accepted_names as $name) {
@@ -59,7 +61,8 @@ class Mapping {
      *
      * @return array
      */
-    public function getMappingKeys() {
+    public function getMappingKeys()
+    {
         return array_keys($this->mappings);
     }
 
@@ -70,7 +73,8 @@ class Mapping {
      * @param string $name
      * @return int|false
      */
-    protected function getMapping($name) {
+    protected function getMapping($name)
+    {
         foreach($this->mappings as $key => $data) {
             if (in_array(strtolower($name), $data['accepted_names'])) {
                 return $key;
@@ -87,9 +91,13 @@ class Mapping {
      * @param array $columns Array to map
      * @return array mappings
      * @throws MappingIncompleteException
+     * @throws OverlapColumnException
      */
-    public function map(array $columns) {
+    public function map(array $columns)
+    {
         $maps = [];
+
+        $seenKeys = [];
 
         foreach($columns as $index => $column_name) {
             $key = $this->getMapping($column_name);
@@ -98,12 +106,18 @@ class Mapping {
                 continue;
             }
 
+            if (in_array($key, $seenKeys)) {
+                throw new OverlapColumnException($key);
+            }
+
+            $seenKeys[] = $key;
+
             $this->mappings[$key]['index'] = $index;
 
             $maps[$key] = $index;
         }
 
-        // Valider que tous les mappings requis sont satisfaits
+        // Check all required mappings are satisfied
         foreach($this->mappings as $key => $data) {
             if ($data['required'] && !array_key_exists($key, $maps)) {
                 throw new MappingIncompleteException(sprintf('%s not found', $key));

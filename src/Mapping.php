@@ -120,7 +120,7 @@ class Mapping {
         // Check all required mappings are satisfied
         foreach($this->mappings as $key => $data) {
             if ($data['required'] && !array_key_exists($key, $maps)) {
-                throw new MappingIncompleteException(sprintf('%s not found', $key));
+                throw new MappingIncompleteException($key);
             }
         }
 
